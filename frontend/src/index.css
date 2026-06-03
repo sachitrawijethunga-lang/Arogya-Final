@@ -1,0 +1,14 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+.hidden-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.hidden-scrollbar::-webkit-scrollbar {
+    display: none;
+}

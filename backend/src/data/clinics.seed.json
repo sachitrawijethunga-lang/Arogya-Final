@@ -1,0 +1,242 @@
+[
+  {
+    "clinicId": "AC-001",
+    "name": "Makuruppa",
+    "rdhs": "Nuwara Eliya RDHS",
+    "province": "Central"
+  },
+  {
+    "clinicId": "AC-002",
+    "name": "Wewakale",
+    "rdhs": "Nuwara Eliya RDHS",
+    "province": "Central"
+  },
+  {
+    "clinicId": "AC-003",
+    "name": "Polgolla",
+    "rdhs": "Kandy RDHS",
+    "province": "Central"
+  },
+  {
+    "clinicId": "AC-004",
+    "name": "Meegamwaththa",
+    "rdhs": "Kandy RDHS",
+    "province": "Central"
+  },
+  {
+    "clinicId": "AC-005",
+    "name": "Kirinda",
+    "rdhs": "Kandy RDHS",
+    "province": "Central"
+  },
+  {
+    "clinicId": "AC-006",
+    "name": "Doragala",
+    "rdhs": "Kandy RDHS",
+    "province": "Central"
+  },
+  {
+    "clinicId": "AC-007",
+    "name": "Dankanda",
+    "rdhs": "Matale RDHS",
+    "province": "Central"
+  },
+  {
+    "clinicId": "AC-008",
+    "name": "Moragolla",
+    "rdhs": "Matale RDHS",
+    "province": "Central"
+  },
+  {
+    "clinicId": "AC-009",
+    "name": "Kurundankulama",
+    "rdhs": "Anuradhapura RDHS",
+    "province": "North Central"
+  },
+  {
+    "clinicId": "AC-010",
+    "name": "Ranpathwila",
+    "rdhs": "Anuradhapura RDHS",
+    "province": "North Central"
+  },
+  {
+    "clinicId": "AC-011",
+    "name": "Meegaswewa",
+    "rdhs": "Polonnaruwa RDHS",
+    "province": "North Central"
+  },
+  {
+    "clinicId": "AC-012",
+    "name": "Abhayapuragama",
+    "rdhs": "Polonnaruwa RDHS",
+    "province": "North Central"
+  },
+  {
+    "clinicId": "AC-013",
+    "name": "Kachchakaduwa",
+    "rdhs": "Puttalam RDHS",
+    "province": "North Western"
+  },
+  {
+    "clinicId": "AC-014",
+    "name": "Iddamalgama",
+    "rdhs": "Puttalam RDHS",
+    "province": "North Western"
+  },
+  {
+    "clinicId": "AC-015",
+    "name": "Doraweruwa",
+    "rdhs": "Kurunegala RDHS",
+    "province": "North Western"
+  },
+  {
+    "clinicId": "AC-016",
+    "name": "Ambagammana",
+    "rdhs": "Kurunegala RDHS",
+    "province": "North Western"
+  },
+  {
+    "clinicId": "AC-017",
+    "name": "Boyawalana",
+    "rdhs": "Kurunegala RDHS",
+    "province": "North Western"
+  },
+  {
+    "clinicId": "AC-018",
+    "name": "Athoya",
+    "rdhs": "Ratnapura RDHS",
+    "province": "Sabaragamuwa"
+  },
+  {
+    "clinicId": "AC-019",
+    "name": "Embilipitiya",
+    "rdhs": "Ratnapura RDHS",
+    "province": "Sabaragamuwa"
+  },
+  {
+    "clinicId": "AC-020",
+    "name": "Fairfield",
+    "rdhs": "Kegalle RDHS",
+    "province": "Sabaragamuwa"
+  },
+  {
+    "clinicId": "AC-021",
+    "name": "Randiwala",
+    "rdhs": "Kegalle RDHS",
+    "province": "Sabaragamuwa"
+  },
+  {
+    "clinicId": "AC-022",
+    "name": "Mapalagama",
+    "rdhs": "Galle RDHS",
+    "province": "Southern"
+  },
+  {
+    "clinicId": "AC-023",
+    "name": "Ampegama",
+    "rdhs": "Galle RDHS",
+    "province": "Southern"
+  },
+  {
+    "clinicId": "AC-024",
+    "name": "Maduwa",
+    "rdhs": "Galle RDHS",
+    "province": "Southern"
+  },
+  {
+    "clinicId": "AC-025",
+    "name": "Sitinamaluwa",
+    "rdhs": "Hambantota RDHS",
+    "province": "Southern"
+  },
+  {
+    "clinicId": "AC-026",
+    "name": "Bedigama",
+    "rdhs": "Hambantota RDHS",
+    "province": "Southern"
+  },
+  {
+    "clinicId": "AC-027",
+    "name": "Wellathota",
+    "rdhs": "Matara RDHS",
+    "province": "Southern"
+  },
+  {
+    "clinicId": "AC-028",
+    "name": "Karagoda Uyangoda II",
+    "rdhs": "Matara RDHS",
+    "province": "Southern"
+  },
+  {
+    "clinicId": "AC-029",
+    "name": "Marangahawela",
+    "rdhs": "Badulla RDHS",
+    "province": "Uva"
+  },
+  {
+    "clinicId": "AC-030",
+    "name": "Uwa Paranagama",
+    "rdhs": "Badulla RDHS",
+    "province": "Uva"
+  },
+  {
+    "clinicId": "AC-031",
+    "name": "Puhulkotuwa",
+    "rdhs": "Monaragala RDHS",
+    "province": "Uva"
+  },
+  {
+    "clinicId": "AC-032",
+    "name": "Muthukandiya",
+    "rdhs": "Monaragala RDHS",
+    "province": "Uva"
+  },
+  {
+    "clinicId": "AC-033",
+    "name": "Aswatte",
+    "rdhs": "Colombo RDHS",
+    "province": "Western"
+  },
+  {
+    "clinicId": "AC-034",
+    "name": "Diyagama",
+    "rdhs": "Colombo RDHS",
+    "province": "Western"
+  },
+  {
+    "clinicId": "AC-035",
+    "name": "Owitigama",
+    "rdhs": "Colombo RDHS",
+    "province": "Western"
+  },
+  {
+    "clinicId": "AC-036",
+    "name": "Thalpitiya",
+    "rdhs": "Kalutara RDHS",
+    "province": "Western"
+  },
+  {
+    "clinicId": "AC-037",
+    "name": "Kananwila",
+    "rdhs": "Kalutara RDHS",
+    "province": "Western"
+  },
+  {
+    "clinicId": "AC-038",
+    "name": "Morapitiya",
+    "rdhs": "Kalutara RDHS",
+    "province": "Western"
+  },
+  {
+    "clinicId": "AC-039",
+    "name": "Thammita",
+    "rdhs": "Gampaha RDHS",
+    "province": "Western"
+  },
+  {
+    "clinicId": "AC-040",
+    "name": "Katuwapitiya",
+    "rdhs": "Gampaha RDHS",
+    "province": "Western"
+  }
+]
