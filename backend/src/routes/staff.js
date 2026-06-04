@@ -9,6 +9,7 @@ import {
   parseCookie,
 } from "../lib/session.js";
 import { createThrottle } from "../lib/loginThrottle.js";
+import { validatePatientFields } from "../lib/validation.js";
 
 // In production (NODE_ENV=production, set by the pm2 ecosystem) the cookie is
 // Secure and scoped to /arogya so the browser never sends it to the co-hosted
@@ -174,7 +175,96 @@ export function staffRouter(db) {
     });
   });
 
-  // ---- edit/approve/reject routes are appended in a later task, BEFORE `return router` ----
+  const insertAudit = db.prepare(
+    `INSERT INTO registration_audit (registration_id, user_id, action, changes_json, reason, created_at)
+     VALUES (@registrationId, @userId, @action, @changesJson, @reason, @createdAt)`
+  );
+
+  router.patch("/registrations/:id", requireAuth, (req, res) => {
+    const row = loadOwned(req, res);
+    if (!row) return;
+    if (row.status !== "pending") {
+      res.status(409).type("text/plain").send("Only pending records can be edited.");
+      return;
+    }
+    const incoming = req.body && req.body.patient;
+    if (!incoming || typeof incoming !== "object") {
+      res.status(400).type("text/plain").send("patient object is required.");
+      return;
+    }
+    const errors = validatePatientFields(incoming);
+    if (errors.length > 0) {
+      res.status(400).type("text/plain").send(errors.join(" "));
+      return;
+    }
+    const before = JSON.parse(row.patient_json || "{}");
+    const after = { ...before, ...incoming };
+    const changes = {};
+    for (const k of Object.keys(after)) {
+      if (before[k] !== after[k]) changes[k] = { from: before[k] ?? null, to: after[k] ?? null };
+    }
+    const now = new Date().toISOString();
+    db.transaction(() => {
+      db.prepare("UPDATE registrations SET patient_json = ? WHERE id = ?").run(JSON.stringify(after), row.id);
+      if (Object.keys(changes).length > 0) {
+        insertAudit.run({
+          registrationId: row.id, userId: req.phno.id, action: "edit",
+          changesJson: JSON.stringify(changes), reason: null, createdAt: now,
+        });
+      }
+    })();
+    res.json({ id: row.id, patient: after });
+  });
+
+  router.post("/registrations/:id/approve", requireAuth, (req, res) => {
+    const row = loadOwned(req, res);
+    if (!row) return;
+    if (row.status === "approved") {
+      res.json({ id: row.id, status: "approved", reviewedAt: row.reviewed_at });
+      return; // idempotent no-op
+    }
+    if (row.status !== "pending") {
+      res.status(409).type("text/plain").send(`Cannot approve a ${row.status} record.`);
+      return;
+    }
+    const now = new Date().toISOString();
+    db.transaction(() => {
+      db.prepare(
+        "UPDATE registrations SET status='approved', reviewed_by=?, reviewed_at=? WHERE id=?"
+      ).run(req.phno.id, now, row.id);
+      insertAudit.run({
+        registrationId: row.id, userId: req.phno.id, action: "approve",
+        changesJson: null, reason: null, createdAt: now,
+      });
+    })();
+    // Layer B will trigger the DHIS2 push here.
+    res.json({ id: row.id, status: "approved", reviewedAt: now });
+  });
+
+  router.post("/registrations/:id/reject", requireAuth, (req, res) => {
+    const row = loadOwned(req, res);
+    if (!row) return;
+    const reason = typeof req.body?.reason === "string" ? req.body.reason.trim() : "";
+    if (!reason) {
+      res.status(400).type("text/plain").send("A rejection reason is required.");
+      return;
+    }
+    if (row.status !== "pending") {
+      res.status(409).type("text/plain").send(`Cannot reject a ${row.status} record.`);
+      return;
+    }
+    const now = new Date().toISOString();
+    db.transaction(() => {
+      db.prepare(
+        "UPDATE registrations SET status='rejected', reviewed_by=?, reviewed_at=?, reject_reason=? WHERE id=?"
+      ).run(req.phno.id, now, reason, row.id);
+      insertAudit.run({
+        registrationId: row.id, userId: req.phno.id, action: "reject",
+        changesJson: null, reason, createdAt: now,
+      });
+    })();
+    res.json({ id: row.id, status: "rejected", rejectReason: reason, reviewedAt: now });
+  });
 
   // Expose for later tasks in the same file:
   router.requireAuth = requireAuth;
