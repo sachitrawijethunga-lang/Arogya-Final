@@ -23,6 +23,7 @@ function initialState(clinicId: string | null = null): AppState {
     requestId: null,
     registration: null,
     screeningFlags: [],
+    screeningNone: false,
     consent: false,
   };
 }
@@ -55,6 +56,26 @@ export default function App() {
     return () => { cancelled = true; };
   }, [state.screen, state.clinicId, state.clinicName]);
 
+  // Kiosk privacy: after inactivity, wipe PII and return to the language screen so
+  // the next patient never sees the previous patient's data. Disabled on the
+  // language screen (no PII entered yet).
+  useEffect(() => {
+    if (state.screen === "language") return;
+    const IDLE_MS = 90_000;
+    let timer = window.setTimeout(() => handleReset(), IDLE_MS);
+    const bump = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => handleReset(), IDLE_MS);
+    };
+    const events: Array<keyof WindowEventMap> = ["pointerdown", "keydown", "touchstart"];
+    events.forEach((e) => window.addEventListener(e, bump, { passive: true }));
+    return () => {
+      window.clearTimeout(timer);
+      events.forEach((e) => window.removeEventListener(e, bump));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.screen]);
+
   const handleLanguageSelect = (language: Language) => {
     setState((s) => ({ ...s, language, screen: s.clinicId ? "registration" : "scanner" }));
   };
@@ -67,10 +88,11 @@ export default function App() {
     setState((s) => ({ ...s, registration, screen: "questionnaire" }));
   };
 
-  const handleQuestionnaireComplete = (flags: boolean[], consent: boolean) => {
+  const handleQuestionnaireComplete = (flags: boolean[], none: boolean, consent: boolean) => {
     setState((s) => ({
       ...s,
       screeningFlags: flags,
+      screeningNone: none,
       consent,
       requestId: crypto.randomUUID(),
       screen: "triage",
@@ -114,6 +136,9 @@ export default function App() {
             <motion.div key="questionnaire" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }} className="absolute inset-0">
               <QuestionnaireScreen
                 language={state.language}
+                initialFlags={state.screeningFlags.length ? state.screeningFlags : undefined}
+                initialNone={state.screeningNone}
+                initialConsent={state.consent}
                 onBack={() => setState((s) => ({ ...s, screen: "registration" }))}
                 onComplete={handleQuestionnaireComplete}
               />

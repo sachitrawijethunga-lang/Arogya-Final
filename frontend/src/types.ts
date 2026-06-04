@@ -54,6 +54,7 @@ export interface AppState {
   requestId: string | null;
   registration: RegistrationData | null;
   screeningFlags: boolean[]; // length 11, index-aligned to the question list
+  screeningNone: boolean;
   consent: boolean;
 }
 
