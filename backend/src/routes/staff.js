@@ -83,9 +83,102 @@ export function staffRouter(db) {
     res.json(publicUser(user));
   });
 
-  // ---- queue/detail/review routes are appended in later tasks, BEFORE `return router` ----
+  // Map a DB row to a queue summary (no full PII dump in the list).
+  function toSummary(row) {
+    const p = JSON.parse(row.patient_json || "{}");
+    return {
+      id: row.id,
+      arogyaId: row.arogya_id,
+      fullName: p.fullName || "",
+      nic: p.nic || "",
+      triage: row.triage,
+      status: row.status,
+      createdAt: row.created_at,
+      reviewedAt: row.reviewed_at,
+    };
+  }
+
+  router.get("/registrations", requireAuth, (req, res) => {
+    const status = ["pending", "approved", "rejected"].includes(req.query.status)
+      ? req.query.status
+      : null;
+    const q = typeof req.query.q === "string" && req.query.q.trim() ? `%${req.query.q.trim()}%` : null;
+
+    let sql =
+      "SELECT id, arogya_id, patient_json, triage, status, created_at, reviewed_at " +
+      "FROM registrations WHERE clinic_id = @clinicId";
+    const params = { clinicId: req.phno.clinicId };
+    if (status) {
+      sql += " AND status = @status";
+      params.status = status;
+    }
+    if (q) {
+      sql += " AND (arogya_id LIKE @q OR patient_json LIKE @q)";
+      params.q = q;
+    }
+    sql += " ORDER BY created_at DESC, id DESC";
+    const rows = db.prepare(sql).all(params);
+    res.json(rows.map(toSummary));
+  });
+
+  // Load a registration and enforce per-clinic ownership. Returns the row or
+  // sends the appropriate error response (and returns null).
+  function loadOwned(req, res) {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      res.status(404).type("text/plain").send("Not found.");
+      return null;
+    }
+    const row = db.prepare("SELECT * FROM registrations WHERE id = ?").get(id);
+    if (!row) {
+      res.status(404).type("text/plain").send("Not found.");
+      return null;
+    }
+    if (row.clinic_id !== req.phno.clinicId) {
+      res.status(403).type("text/plain").send("Forbidden.");
+      return null;
+    }
+    return row;
+  }
+
+  router.get("/registrations/:id", requireAuth, (req, res) => {
+    const row = loadOwned(req, res);
+    if (!row) return;
+    const audit = db
+      .prepare(
+        `SELECT a.action, a.changes_json, a.reason, a.created_at, u.full_name AS by_name
+         FROM registration_audit a JOIN phno_users u ON u.id = a.user_id
+         WHERE a.registration_id = ? ORDER BY a.created_at ASC, a.id ASC`
+      )
+      .all(row.id)
+      .map((a) => ({
+        action: a.action,
+        changes: a.changes_json ? JSON.parse(a.changes_json) : null,
+        reason: a.reason,
+        at: a.created_at,
+        byName: a.by_name,
+      }));
+    res.json({
+      id: row.id,
+      arogyaId: row.arogya_id,
+      clinicId: row.clinic_id,
+      language: row.language,
+      patient: JSON.parse(row.patient_json || "{}"),
+      screeningFlags: JSON.parse(row.screening_flags || "[]"),
+      triage: row.triage,
+      status: row.status,
+      reviewedAt: row.reviewed_at,
+      rejectReason: row.reject_reason,
+      createdAt: row.created_at,
+      audit,
+    });
+  });
+
+  // ---- edit/approve/reject routes are appended in a later task, BEFORE `return router` ----
 
   // Expose for later tasks in the same file:
   router.requireAuth = requireAuth;
+  router.loadOwned = loadOwned;
+  router.toSummary = toSummary;
   return router;
 }
