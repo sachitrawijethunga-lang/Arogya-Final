@@ -20,6 +20,7 @@ function initialState(clinicId: string | null = null): AppState {
     language: "en",
     clinicId,
     clinicName: null,
+    requestId: null,
     registration: null,
     screeningFlags: [],
     consent: false,
@@ -67,7 +68,13 @@ export default function App() {
   };
 
   const handleQuestionnaireComplete = (flags: boolean[], consent: boolean) => {
-    setState((s) => ({ ...s, screeningFlags: flags, consent, screen: "triage" }));
+    setState((s) => ({
+      ...s,
+      screeningFlags: flags,
+      consent,
+      requestId: crypto.randomUUID(),
+      screen: "triage",
+    }));
   };
 
   const handleReset = () => {
@@ -118,6 +125,7 @@ export default function App() {
               <TriageSummaryScreen
                 language={state.language}
                 clinicId={state.clinicId ?? ""}
+                requestId={state.requestId ?? ""}
                 registration={state.registration}
                 screeningFlags={state.screeningFlags}
                 consent={state.consent}
