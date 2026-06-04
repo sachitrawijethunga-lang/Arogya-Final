@@ -28,19 +28,19 @@ function initialState(clinicId: string | null = null): AppState {
   };
 }
 
+function clinicIdFromUrl(): string | null {
+  const clinic = new URLSearchParams(window.location.search).get("clinic")?.trim();
+  return clinic || null;
+}
+
 export default function App() {
-  const [state, setState] = useState<AppState>(initialState());
+  const [state, setState] = useState<AppState>(() => initialState(clinicIdFromUrl()));
 
-  // Read ?clinic from the URL (QR opens the app with the clinic embedded).
-  useEffect(() => {
-    const clinic = new URLSearchParams(window.location.search).get("clinic")?.trim();
-    if (clinic) setState((s) => ({ ...s, clinicId: clinic }));
-  }, []);
-
-  // Resolve the clinic name when entering registration with a clinic but no name yet.
+  // Resolve the clinic name as soon as the QR-provided clinic id is known so
+  // the language screen can show the specific Arogya center.
   useEffect(() => {
     let cancelled = false;
-    if (state.screen === "registration" && state.clinicId && state.clinicName === null) {
+    if (state.clinicId && state.clinicName === null) {
       validateClinic(state.clinicId).then((res) => {
         if (cancelled || !res.ok) return;
         if (res.data.valid && res.data.clinicName) {
@@ -49,12 +49,16 @@ export default function App() {
           // The clinic from the URL doesn't exist; fall back to the scanner
           // so the user can scan or enter a valid clinic instead of being
           // stuck on registration with no clinic name.
-          setState((s) => ({ ...s, clinicId: null, screen: "scanner" }));
+          setState((s) => ({
+            ...s,
+            clinicId: null,
+            screen: s.screen === "language" ? "language" : "scanner",
+          }));
         }
       });
     }
     return () => { cancelled = true; };
-  }, [state.screen, state.clinicId, state.clinicName]);
+  }, [state.clinicId, state.clinicName]);
 
   // Kiosk privacy: after inactivity, wipe PII and return to the language screen so
   // the next patient never sees the previous patient's data. Disabled on the
@@ -109,7 +113,11 @@ export default function App() {
         <AnimatePresence mode="wait">
           {state.screen === "language" && (
             <motion.div key="language" exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.2 }} className="absolute inset-0">
-              <LanguageSelectScreen onSelectLanguage={handleLanguageSelect} />
+              <LanguageSelectScreen
+                clinicId={state.clinicId}
+                clinicName={state.clinicName}
+                onSelectLanguage={handleLanguageSelect}
+              />
             </motion.div>
           )}
 

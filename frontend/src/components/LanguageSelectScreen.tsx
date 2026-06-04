@@ -1,14 +1,19 @@
 import React from 'react';
 import { Language, text } from '../translations';
-import { BriefcaseMedical, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
+import arogyaLogo from '../assets/arogya-logo.jpeg';
 
 interface Props {
+  clinicId: string | null;
+  clinicName: string | null;
   onSelectLanguage: (lang: Language) => void;
 }
 
-export function LanguageSelectScreen({ onSelectLanguage }: Props) {
+export function LanguageSelectScreen({ clinicId, clinicName, onSelectLanguage }: Props) {
   const t = text.en;
+  const centerTitle = clinicName ?? clinicId;
+  const welcomeTitle = centerTitle ? `Arogya Health and Wellness Center - ${centerTitle}` : t.welcome;
   
   return (
     <div className="h-full bg-[#F6F9F7] flex flex-col p-6 items-center overflow-y-auto hidden-scrollbar">
@@ -16,15 +21,17 @@ export function LanguageSelectScreen({ onSelectLanguage }: Props) {
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }} 
           animate={{ scale: 1, opacity: 1 }} 
-          className="w-[100px] h-[100px] bg-[#E3F5EC] rounded-full flex items-center justify-center mb-8 border-[1.5px] border-[#A8DEC3] shadow-sm relative"
+          className="mb-8 flex justify-center"
         >
-          <BriefcaseMedical size={44} className="text-[#0A5C43]" strokeWidth={2.5} />
+          <img
+            src={arogyaLogo}
+            alt="Arogya Digital"
+            className="h-auto w-[190px] max-w-[72vw] mix-blend-multiply"
+          />
         </motion.div>
-        
-        <h1 className="text-[28px] font-bold text-[#0A5C43] mb-6 tracking-tight font-sans">Arogya Clinics</h1>
-        
+
         <h2 className="text-[20px] font-bold text-[#122A21] text-center mb-4 leading-snug px-4">
-          {t.welcome}
+          {welcomeTitle}
         </h2>
         
         <p className="text-[#4F675C] text-center mb-10 leading-relaxed text-[15px] px-2 font-medium">
