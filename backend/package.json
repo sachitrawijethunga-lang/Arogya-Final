@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "create-phno": "node scripts/create-phno.js"
   },
   "dependencies": {
     "better-sqlite3": "^12.10.0",
