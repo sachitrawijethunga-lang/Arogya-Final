@@ -31,8 +31,7 @@ async function request<T>(
 
     if (!response.ok) {
       const body = await response.text();
-      const message = body ? body : `Request failed with status ${response.status}`;
-      return { ok: false, error: message };
+      return { ok: false, error: body || `HTTP ${response.status}`, status: response.status, kind: "http" };
     }
 
     const data = await response.json();
@@ -40,12 +39,9 @@ async function request<T>(
   } catch (err) {
     clearTimeout(timeoutId);
     if (err instanceof DOMException && err.name === "AbortError") {
-      return { ok: false, error: "Request timed out. Please try again." };
+      return { ok: false, error: "timeout", kind: "timeout" };
     }
-    return {
-      ok: false,
-      error: "Unable to connect to the server. Please check your connection.",
-    };
+    return { ok: false, error: String(err), kind: "network" };
   }
 }
 

@@ -51,14 +51,25 @@ export interface AppState {
   language: Language;
   clinicId: string | null;
   clinicName: string | null;
+  requestId: string | null;
   registration: RegistrationData | null;
   screeningFlags: boolean[]; // length 11, index-aligned to the question list
   consent: boolean;
 }
 
-export type ApiResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string };
+export interface ApiSuccess<T> {
+  ok: true;
+  data: T;
+}
+
+export interface ApiError {
+  ok: false;
+  error: string; // raw text, for console/logging only — never shown to patients
+  status?: number; // HTTP status, when the failure was an HTTP error
+  kind: "timeout" | "network" | "http";
+}
+
+export type ApiResult<T> = ApiSuccess<T> | ApiError;
 
 export interface ClinicValidationResponse {
   valid: boolean;
@@ -66,6 +77,7 @@ export interface ClinicValidationResponse {
 }
 
 export interface RegistrationRequest {
+  requestId: string;
   language: string;
   clinicId: string;
   patient: RegistrationData;
