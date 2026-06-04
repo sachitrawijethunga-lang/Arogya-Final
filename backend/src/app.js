@@ -16,7 +16,13 @@ export function createApp(db) {
       res.status(400).type("text/plain").send("Invalid JSON body.");
       return;
     }
-    console.error(err);
+    // Log message + code only — never the full error (better-sqlite3 errors can
+    // carry bound params, i.e. patient PII) into pm2's plaintext logs.
+    console.error(
+      "[arogya] request error:",
+      err && err.message ? err.message : String(err),
+      err && err.code ? `(${err.code})` : ""
+    );
     res.status(500).type("text/plain").send("Internal server error.");
   });
 

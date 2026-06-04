@@ -96,3 +96,13 @@ test("consent is persisted as 1 for a consenting registration", async () => {
   await request(app).post("/registration").send(validBody());
   assert.equal(db.prepare("SELECT consent FROM registrations").get().consent, 1);
 });
+
+test("malformed JSON body is rejected with 400 plain text", async () => {
+  const app = createApp(freshDb());
+  const res = await request(app)
+    .post("/registration")
+    .set("Content-Type", "application/json")
+    .send('{"clinicId":'); // truncated JSON
+  assert.equal(res.status, 400);
+  assert.match(res.text, /JSON/i);
+});
