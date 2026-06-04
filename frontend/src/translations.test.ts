@@ -34,4 +34,18 @@ describe("translations", () => {
       expect(text[l].screening.consent).toBeTruthy();
     }
   });
+
+  it("has non-empty English staff strings throughout", () => {
+    const assertAllNonEmpty = (node: unknown, path: string) => {
+      if (typeof node === "string") {
+        expect(node, `empty staff string at ${path}`).not.toBe("");
+        return;
+      }
+      expect(node, `missing staff node at ${path}`).toBeTruthy();
+      for (const [k, v] of Object.entries(node as Record<string, unknown>)) {
+        assertAllNonEmpty(v, `${path}.${k}`);
+      }
+    };
+    assertAllNonEmpty(text.en.staff, "en.staff");
+  });
 });
