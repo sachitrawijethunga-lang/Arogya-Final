@@ -11,6 +11,7 @@ export function validateRegistration(body, clinicExists) {
   if (!clinicExists) errors.push("Unknown clinic.");
   if (!LANGS.includes(body.language)) errors.push("Invalid language.");
   if (body.consent !== true) errors.push("Consent is required.");
+  if (!isNonEmptyString(body.requestId)) errors.push("Request ID is required.");
 
   const flags = body.screening && body.screening.flags;
   if (!Array.isArray(flags) || flags.length !== 11 || !flags.every((f) => typeof f === "boolean")) {

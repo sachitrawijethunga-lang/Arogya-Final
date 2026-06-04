@@ -4,6 +4,7 @@ import { validateRegistration } from "../src/lib/validation.js";
 
 function validBody(overrides = {}) {
   return {
+    requestId: "req-1",
     language: "en",
     clinicId: "AC-005",
     patient: {
@@ -48,6 +49,12 @@ test("missing required patient fields are rejected", () => {
   assert.ok(errors.some((e) => /gender/i.test(e)));
   assert.ok(errors.some((e) => /birth/i.test(e)));
   assert.ok(errors.some((e) => /mobile/i.test(e)));
+});
+
+test("requestId is required", () => {
+  const body = validBody();
+  delete body.requestId;
+  assert.ok(validateRegistration(body, true).some((e) => /request id/i.test(e)));
 });
 
 test("requires at least one of NIC or PHN", () => {

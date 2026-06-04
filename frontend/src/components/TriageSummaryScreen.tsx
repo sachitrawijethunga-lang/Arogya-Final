@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Language, text } from "../translations";
 import type { RegistrationData, TriageResult } from "../types";
 import { submitRegistration } from "../services/api";
+import { mapApiError } from "../lib/apiError";
 import { motion } from "motion/react";
 import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react";
 
 interface Props {
   language: Language;
   clinicId: string;
+  requestId: string;
   registration: RegistrationData;
   screeningFlags: boolean[];
   consent: boolean;
@@ -15,40 +17,44 @@ interface Props {
 }
 
 export function TriageSummaryScreen({
-  language, clinicId, registration, screeningFlags, consent, onReset,
+  language, clinicId, requestId, registration, screeningFlags, consent, onReset,
 }: Props) {
   const t = text[language];
   const [isSubmitting, setIsSubmitting] = useState(true);
   const [result, setResult] = useState<TriageResult | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // useRef (not state) so the guard survives re-renders and StrictMode's
+  // double-invoke of effects — exactly one automatic submit happens.
+  const startedRef = useRef(false);
+
+  async function submit() {
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    // Same requestId on every attempt (mount + Retry) → server-side idempotent.
+    const res = await submitRegistration({
+      requestId,
+      language,
+      clinicId,
+      patient: { ...registration },
+      screening: { flags: screeningFlags },
+      consent,
+    });
+
+    if (res.ok === false) {
+      setSubmitError(mapApiError(res, language));
+      setIsSubmitting(false);
+      return;
+    }
+    setResult({ level: res.data.triage, message: res.data.message, arogyaId: res.data.arogyaId });
+    setIsSubmitting(false);
+  }
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function submit() {
-      setIsSubmitting(true);
-      setSubmitError(null);
-
-      const res = await submitRegistration({
-        language,
-        clinicId,
-        patient: { ...registration },
-        screening: { flags: screeningFlags },
-        consent,
-      });
-
-      if (cancelled) return;
-      if (!res.ok) {
-        setSubmitError((res as { ok: false; error: string }).error);
-        setIsSubmitting(false);
-        return;
-      }
-      setResult({ level: res.data.triage, message: res.data.message, arogyaId: res.data.arogyaId });
-      setIsSubmitting(false);
-    }
-
+    if (startedRef.current) return; // StrictMode's second invoke bails out
+    startedRef.current = true;
     submit();
-    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isHighRisk = result?.level === "high-risk";
@@ -77,9 +83,13 @@ export function TriageSummaryScreen({
         <h2 className="text-[22px] font-bold text-[#B71C1C] mb-3">{t.screening.unableTitle}</h2>
         <p className="text-[15px] text-[#4F675C] text-center mb-2">{submitError}</p>
         <p className="text-[14px] text-[#4F675C] text-center mb-8">{t.screening.askStaff}</p>
+        <button onClick={submit}
+          className="w-full max-w-[300px] py-[16px] bg-[#0A5C43] text-white hover:bg-[#0C6E50] rounded-[12px] font-bold text-[15px] transition-all flex items-center justify-center gap-2 mb-3 focus:outline-none focus:ring-4 focus:ring-[#D6F2E5]">
+          <RotateCcw size={18} strokeWidth={2.5} />
+          {t.tryAgain}
+        </button>
         <button onClick={onReset}
           className="w-full max-w-[300px] py-[16px] bg-white border-[1.5px] border-[#0A5C43] text-[#0A5C43] hover:bg-[#EAF5F0] rounded-[12px] font-bold text-[15px] transition-all flex items-center justify-center gap-2">
-          <RotateCcw size={18} strokeWidth={2.5} />
           {t.startOver}
         </button>
       </div>

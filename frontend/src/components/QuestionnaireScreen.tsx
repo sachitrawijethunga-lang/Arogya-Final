@@ -7,18 +7,28 @@ import {
   toggleSymptom,
   toggleNone,
   isScreeningComplete,
+  SCREENING_ITEM_COUNT,
 } from "../lib/screening";
 
 interface Props {
   language: Language;
+  initialFlags?: boolean[];
+  initialNone?: boolean;
+  initialConsent?: boolean;
   onBack: () => void;
-  onComplete: (flags: boolean[], consent: boolean) => void;
+  onComplete: (flags: boolean[], none: boolean, consent: boolean) => void;
 }
 
-export function QuestionnaireScreen({ language, onBack, onComplete }: Props) {
+export function QuestionnaireScreen({
+  language, initialFlags, initialNone, initialConsent, onBack, onComplete,
+}: Props) {
   const t = text[language];
-  const [state, setState] = useState(emptyScreeningState());
-  const [consent, setConsent] = useState(false);
+  const [state, setState] = useState(() =>
+    initialFlags && initialFlags.length === SCREENING_ITEM_COUNT
+      ? { flags: [...initialFlags], none: !!initialNone }
+      : emptyScreeningState()
+  );
+  const [consent, setConsent] = useState(!!initialConsent);
 
   const complete = isScreeningComplete(state, consent);
 
@@ -84,7 +94,7 @@ export function QuestionnaireScreen({ language, onBack, onComplete }: Props) {
           </label>
         </div>
 
-        <button onClick={() => complete && onComplete(state.flags, consent)} disabled={!complete}
+        <button onClick={() => complete && onComplete(state.flags, state.none, consent)} disabled={!complete}
           className="w-full py-[18px] bg-[#0A5C43] hover:bg-[#074734] text-white rounded-[12px] font-semibold text-[16px] transition-all shadow-[0_4px_12px_rgba(10,92,67,0.15)] disabled:bg-[#A8DEC3] disabled:text-[#F6F9F7] disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:outline-none focus:ring-4 focus:ring-[#2C8567]">
           {t.screening.submit} <CheckCircle2 size={20} />
         </button>

@@ -23,6 +23,13 @@ export const text = {
     triageDengue: "You have indicated some high-risk symptoms. Please proceed to the triage counter immediately.",
     triageNormal: "Registration successful. Please proceed to the main clinic lobby.",
     startOver: "Return to Home",
+    tryAgain: "Try Again",
+    errors: {
+      timeout: "The connection is slow. Please tap Try Again.",
+      network: "Cannot reach the server. Please check the connection and try again.",
+      rejected: "We could not process this submission. Please ask staff for assistance.",
+      server: "Something went wrong on our side. Please tap Try Again or ask staff.",
+    },
     cameraError: "Unable to access camera.",
     reg: {
       title: "Patient Registration",
@@ -138,6 +145,13 @@ export const text = {
     triageDengue: "ඔබට අවදානම් රෝග ලක්ෂණ ඇත. කරුණාකර වහාම හදිසි ප්‍රතිකාර අංශය වෙත යන්න.",
     triageNormal: "ලියාපදිංචිය සාර්ථකයි. කරුණාකර රැඳවුම් ප්‍රදේශයට යන්න.",
     startOver: "නැවත ආරම්භ කරන්න",
+    tryAgain: "නැවත උත්සාහ කරන්න",
+    errors: {
+      timeout: "සම්බන්ධතාවය මන්දගාමීයි. කරුණාකර නැවත උත්සාහ කරන්න ඔබන්න.",
+      network: "සේවාදායකය වෙත සම්බන්ධ විය නොහැක. කරුණාකර සම්බන්ධතාවය පරීක්ෂා කර නැවත උත්සාහ කරන්න.",
+      rejected: "මෙම ඉදිරිපත් කිරීම සැකසිය නොහැකි විය. කරුණාකර කාර්ය මණ්ඩලයෙන් සහාය ලබා ගන්න.",
+      server: "අපගේ පැත්තෙන් දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න හෝ කාර්ය මණ්ඩලයෙන් අසන්න.",
+    },
     cameraError: "කැමරාවට ප්‍රවේශ විය නොහැක.",
     reg: {
       title: "රෝගී ලියාපදිංචිය",
@@ -253,6 +267,13 @@ export const text = {
     triageDengue: "உங்களுக்கு அதிக ஆபத்துள்ள அறிகுறிகள் உள்ளன. உடனடியாக அவசர பிரிவுக்குச் செல்லவும்.",
     triageNormal: "பதிவு வெற்றிகரமானது. காத்திருப்பு அறைக்குச் செல்லவும்.",
     startOver: "முகப்புக்குத் திரும்பு",
+    tryAgain: "மீண்டும் முயற்சிக்கவும்",
+    errors: {
+      timeout: "இணைப்பு மெதுவாக உள்ளது. மீண்டும் முயற்சிக்கவும் என்பதை அழுத்தவும்.",
+      network: "சேவையகத்தை அணுக முடியவில்லை. இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
+      rejected: "இந்தச் சமர்ப்பிப்பைச் செயலாக்க முடியவில்லை. பணியாளரிடம் உதவி கேட்கவும்.",
+      server: "எங்கள் தரப்பில் ஒரு பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும் அல்லது பணியாளரிடம் கேட்கவும்.",
+    },
     cameraError: "கேமராவை அணுக முடியவில்லை.",
     reg: {
       title: "நோயாளர் பதிவு",
