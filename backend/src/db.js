@@ -61,6 +61,49 @@ function migrate(db) {
     db.pragma("user_version = 2");
     version = 2;
   }
+
+  if (version < 3) {
+    db.exec(`
+      ALTER TABLE registrations ADD COLUMN status TEXT NOT NULL DEFAULT 'pending';
+      ALTER TABLE registrations ADD COLUMN reviewed_by INTEGER;
+      ALTER TABLE registrations ADD COLUMN reviewed_at TEXT;
+      ALTER TABLE registrations ADD COLUMN reject_reason TEXT;
+
+      CREATE TABLE phno_users (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        username      TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        password_salt TEXT NOT NULL,
+        clinic_id     TEXT NOT NULL REFERENCES clinics(clinic_id),
+        full_name     TEXT NOT NULL,
+        disabled      INTEGER NOT NULL DEFAULT 0,
+        created_at    TEXT NOT NULL
+      );
+
+      CREATE TABLE phno_sessions (
+        token      TEXT PRIMARY KEY,
+        user_id    INTEGER NOT NULL REFERENCES phno_users(id),
+        created_at TEXT NOT NULL,
+        expires_at TEXT NOT NULL
+      );
+
+      CREATE TABLE registration_audit (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        registration_id INTEGER NOT NULL REFERENCES registrations(id),
+        user_id         INTEGER NOT NULL REFERENCES phno_users(id),
+        action          TEXT NOT NULL,
+        changes_json    TEXT,
+        reason          TEXT,
+        created_at      TEXT NOT NULL
+      );
+
+      CREATE INDEX idx_reg_clinic_status_created ON registrations(clinic_id, status, created_at);
+      CREATE INDEX idx_audit_registration ON registration_audit(registration_id);
+      CREATE INDEX idx_sessions_user ON phno_sessions(user_id);
+    `);
+    db.pragma("user_version = 3");
+    version = 3;
+  }
 }
 
 function seedClinics(db) {
