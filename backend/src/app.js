@@ -1,6 +1,7 @@
 import express from "express";
 import { clinicsRouter } from "./routes/clinics.js";
 import { registrationRouter } from "./routes/registration.js";
+import { staffRouter } from "./routes/staff.js";
 
 export function createApp(db) {
   const app = express();
@@ -9,6 +10,7 @@ export function createApp(db) {
   app.get("/health", (_req, res) => res.json({ ok: true }));
   app.use("/clinics", clinicsRouter(db));
   app.use("/registration", registrationRouter(db));
+  app.use("/staff", staffRouter(db));
 
   // Error handler (must be last, 4 args).
   app.use((err, _req, res, _next) => {
