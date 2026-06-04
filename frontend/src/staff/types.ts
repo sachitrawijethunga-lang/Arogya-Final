@@ -42,6 +42,12 @@ export interface RegistrationDetail {
   audit: AuditEntry[];
 }
 
-export type StaffResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; status: number; error: string };
+// Flat (non-discriminated) shape: this project's tsconfig has no strictNullChecks,
+// so discriminated-union narrowing on `ok` does not work. Optional fields keep
+// every consumer's `res.ok` / `res.data` / `res.status` / `res.error` access valid.
+export interface StaffResult<T> {
+  ok: boolean;
+  data?: T;
+  status?: number;
+  error?: string;
+}
