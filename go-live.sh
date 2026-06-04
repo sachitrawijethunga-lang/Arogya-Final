@@ -34,6 +34,7 @@ fi
 log "[4/8] Creating SQLite data dir $DBDIR"
 sudo mkdir -p "$DBDIR"
 sudo chown "$(id -un)":"$(id -gn)" "$DBDIR"
+sudo chmod 0700 "$DBDIR"
 
 log "[5/8] Installing + testing backend"
 cd "$REPO/backend"
@@ -43,6 +44,11 @@ npm test
 log "[6/8] Starting/restarting backend under pm2"
 pm2 startOrRestart ecosystem.config.cjs --update-env
 pm2 save
+# Lock down the SQLite files once the backend has created them (PII at rest).
+sleep 1
+for f in "$DBDIR/arogya.db" "$DBDIR/arogya.db-wal" "$DBDIR/arogya.db-shm"; do
+  [ -f "$f" ] && chmod 0600 "$f" || true
+done
 
 log "[7/8] Ensuring Caddy /arogya/api route (DHIS2 block untouched)"
 BACKUP=""
@@ -83,12 +89,12 @@ echo -n "  backend (direct)   : "; curl -s http://127.0.0.1:4000/health || echo 
 echo -n "  backend (via Caddy): "; curl -sk https://vmi3065909.contaboserver.net/arogya/api/health || echo "FAILED"; echo
 echo -n "  frontend bundle    : "; curl -sk https://vmi3065909.contaboserver.net/arogya/ | grep -o 'index-[A-Za-z0-9]*\.js' || echo "FAILED"
 
+log "Enabling pm2 start-on-boot (systemd)"
+sudo env PATH="$PATH" "$(command -v pm2)" startup systemd -u "$(id -un)" --hp "$HOME"
+pm2 save
+
 cat <<EOF
 
 Done. Open (and hard-refresh):
   https://vmi3065909.contaboserver.net/arogya/?clinic=AC-002
-
-Optional — start the backend automatically on server reboot:
-  sudo env PATH="\$PATH" "\$(command -v pm2)" startup systemd -u "$(id -un)" --hp "$HOME"
-  pm2 save
 EOF
