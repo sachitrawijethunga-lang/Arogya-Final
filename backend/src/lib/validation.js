@@ -4,6 +4,16 @@ function isNonEmptyString(v) {
   return typeof v === "string" && v.trim().length > 0;
 }
 
+export function validatePatientFields(p) {
+  const errors = [];
+  if (!isNonEmptyString(p.fullName)) errors.push("Full name is required.");
+  if (p.gender !== "male" && p.gender !== "female") errors.push("Gender is required.");
+  if (!isNonEmptyString(p.dateOfBirth)) errors.push("Date of birth is required.");
+  if (!isNonEmptyString(p.mobile)) errors.push("Mobile number is required.");
+  if (!isNonEmptyString(p.nic) && !isNonEmptyString(p.phn)) errors.push("NIC or PHN is required.");
+  return errors;
+}
+
 export function validateRegistration(body, clinicExists) {
   if (!body || typeof body !== "object") return ["Invalid request body."];
   const errors = [];
@@ -19,11 +29,7 @@ export function validateRegistration(body, clinicExists) {
   }
 
   const p = body.patient || {};
-  if (!isNonEmptyString(p.fullName)) errors.push("Full name is required.");
-  if (p.gender !== "male" && p.gender !== "female") errors.push("Gender is required.");
-  if (!isNonEmptyString(p.dateOfBirth)) errors.push("Date of birth is required.");
-  if (!isNonEmptyString(p.mobile)) errors.push("Mobile number is required.");
-  if (!isNonEmptyString(p.nic) && !isNonEmptyString(p.phn)) errors.push("NIC or PHN is required.");
+  errors.push(...validatePatientFields(p));
 
   return errors;
 }

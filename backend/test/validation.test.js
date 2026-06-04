@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validateRegistration } from "../src/lib/validation.js";
+import { validateRegistration, validatePatientFields } from "../src/lib/validation.js";
 
 function validBody(overrides = {}) {
   return {
@@ -66,4 +66,14 @@ test("requires at least one of NIC or PHN", () => {
   ok.patient.nic = "";
   ok.patient.phn = "PHN-1";
   assert.deepEqual(validateRegistration(ok, true), []);
+});
+
+test("validatePatientFields accepts a valid patient and lists errors for an invalid one", () => {
+  const good = validBody().patient;
+  assert.deepEqual(validatePatientFields(good), []);
+  const bad = { ...good, fullName: "", gender: "x", nic: "", phn: "" };
+  const errs = validatePatientFields(bad);
+  assert.ok(errs.some((e) => /full name/i.test(e)));
+  assert.ok(errs.some((e) => /gender/i.test(e)));
+  assert.ok(errs.some((e) => /nic or phn/i.test(e)));
 });
